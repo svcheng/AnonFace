@@ -1,14 +1,17 @@
 package com.mobdeve.anonface
 
 import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -31,6 +34,7 @@ class PhotoCaptureActivity : AppCompatActivity() {
         val previewView: PreviewView = viewBinding.previewView
         cameraController = LifecycleCameraController(baseContext)
         cameraController.bindToLifecycle(this)
+        cameraController.setEnabledUseCases(CameraController.IMAGE_CAPTURE)
         previewView.controller = cameraController
 
         val takePhotoBtn: Button = findViewById(R.id.takePhotoBtn)
@@ -54,12 +58,14 @@ class PhotoCaptureActivity : AppCompatActivity() {
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exception: ImageCaptureException) {
-                    Toast.makeText(baseContext,"Unable to take photo", Toast.LENGTH_SHORT).show()
+                    Log.e("", "Unable to take photo")
                 }
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {}
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    val intent = Intent(baseContext, AreaSelectionActivity::class.java)
+                    intent.putExtra("uri", outputFileResults.savedUri.toString())
+                    startActivity(intent)
+                }
             }
         )
-
-        finish()
     }
 }

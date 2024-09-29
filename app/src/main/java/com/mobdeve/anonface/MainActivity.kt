@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         val startPhotoCaptureActivityBtn: Button = findViewById(R.id.startPhotoCaptureActivityBtn)
         startPhotoCaptureActivityBtn.setOnClickListener {
-            val intent = Intent(this, PhotoCaptureActivity::class.java)
+            val intent = Intent(baseContext, PhotoCaptureActivity::class.java)
             startActivity(intent)
         }
     }
