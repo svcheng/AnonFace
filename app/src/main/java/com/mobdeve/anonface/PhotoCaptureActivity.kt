@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.CameraController
@@ -38,6 +39,16 @@ class PhotoCaptureActivity : AppCompatActivity() {
 
         val takePhotoBtn: Button = findViewById(R.id.takePhotoBtn)
         takePhotoBtn.setOnClickListener { takePhoto() }
+
+        val switchCameraBtn: Button = findViewById(R.id.switchCameraBtn)
+        switchCameraBtn.setOnClickListener {
+            cameraController.cameraSelector =
+                if (cameraController.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+                } else {
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                }
+        }
     }
 
     private fun takePhoto() {
