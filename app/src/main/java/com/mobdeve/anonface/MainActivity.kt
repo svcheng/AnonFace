@@ -45,8 +45,8 @@ class MainActivity : AppCompatActivity() {
     private val activityResultLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions())
         {
-                permissions ->
-            var permissionsGranted = true;
+            permissions ->
+            var permissionsGranted = true
             permissions.entries.forEach {
                 if (it.key in REQUIRED_PERMISSIONS && it.value == false)
                     permissionsGranted = false
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.CAMERA
         ).apply {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }.toTypedArray()
     }

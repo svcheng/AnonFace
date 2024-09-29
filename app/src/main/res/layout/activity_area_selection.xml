@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AreaSelectionActivity">
+    tools:context=".FaceBlurringActivity">
 
     <ImageView
         android:id="@+id/capturedPhoto"
@@ -35,7 +35,7 @@
         android:layout_marginTop="24dp"
         android:gravity="center"
         android:text="Tap and drag to choose faces to exclude from blurring"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
