@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AnonFace</string>
+    <string name="landing_button1">Next</string>
+    <string name="landing_button2">Take Photo</string>
+    <string name="landing_text1">Welcome to AnonFace.</string>
+    <string name="landing_text2">Welcome to AnonFace 2.</string>
+    <string name="landing_text3">Welcome to AnonFace 3.</string>
 </resources>
