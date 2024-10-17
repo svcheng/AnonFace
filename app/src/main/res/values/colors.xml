@@ -2,6 +2,20 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="purple1">#FF7D8ABC</color>
-    <color name="yellow1">#FFFFF8DB</color>
+
+    <!--  PURPLES  -->
+    <color name="light_purple">#FF7C93C3</color>
+    <color name="mid1_purple">#FF7D8ABC</color>
+    <color name="mid2_purple">#FF55679C</color>
+    <color name="dark_purple">#FF1E2A5E</color>
+    <color name="desat_purple">#FF304463</color>
+
+    <!--  YELLOWS  -->
+    <color name="light_yellow">#FFFFF8DB</color>
+    <color name="dark_yellow">#FFE1D7B7</color>
+    <color name="desat_yellow">#D7C7AA</color>
+
+    <!--  PINK ACCENT  -->
+    <color name="pink">#FFFFC7ED</color>
+
 </resources>

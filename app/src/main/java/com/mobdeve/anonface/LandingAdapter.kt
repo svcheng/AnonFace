@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 class LandingAdapter(private val landing : ArrayList<LandingDetails>) : Adapter<LandingViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LandingViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.recycler_template, parent, false)
+        val view = inflater.inflate(R.layout.recycler_landing_template, parent, false)
 
         return LandingViewHolder(view)
     }

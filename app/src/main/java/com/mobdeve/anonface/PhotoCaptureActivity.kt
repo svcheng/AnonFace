@@ -6,11 +6,14 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
@@ -37,10 +40,11 @@ class PhotoCaptureActivity : AppCompatActivity() {
         cameraController.setEnabledUseCases(CameraController.IMAGE_CAPTURE)
         previewView.controller = cameraController
 
-        val takePhotoBtn: Button = findViewById(R.id.takePhotoBtn)
+
+        val takePhotoBtn: ImageButton = findViewById(R.id.takePhotoBtn)
         takePhotoBtn.setOnClickListener { takePhoto() }
 
-        val switchCameraBtn: Button = findViewById(R.id.switchCameraBtn)
+        val switchCameraBtn: ImageButton = findViewById(R.id.switchCameraBtn)
         switchCameraBtn.setOnClickListener {
             cameraController.cameraSelector =
                 if (cameraController.cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {

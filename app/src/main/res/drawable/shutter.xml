@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--  Not pressed shutter button  -->
+    <item android:state_pressed="false">
+        <shape android:shape="oval">
+            <stroke
+                android:color="@color/mid1_purple"
+                android:width="5dp"/>
+            <solid android:color="@color/dark_yellow"/>
+        </shape>
+    </item>
+
+    <!--  Pressed shutter button  -->
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <stroke
+                android:color="@color/desat_purple"
+                android:width="5dp"/>
+            <solid android:color="@color/desat_yellow"/>
+        </shape>
+    </item>
+</selector>

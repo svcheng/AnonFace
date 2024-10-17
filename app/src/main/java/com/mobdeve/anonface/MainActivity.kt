@@ -43,27 +43,24 @@ class MainActivity : AppCompatActivity() {
         landingRecycler.addOnScrollListener(PageIndicator(this))
 
         var currPos : Int = 0
-        var button : Button = findViewById(R.id.startPhotoCaptureActivityBtn)
-        button.setOnClickListener {
+        val startPhotoCaptureActivityBtn : Button = findViewById(R.id.startPhotoCaptureActivityBtn)
+        startPhotoCaptureActivityBtn.setOnClickListener {
             currPos = (landingRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
             landingRecycler.smoothScrollToPosition(currPos+1)
+            val intent = Intent(baseContext, PhotoCaptureActivity::class.java)
+            startActivity(intent)
         }
 
         if (currPos < 2) {
-            button.visibility = View.GONE
+            startPhotoCaptureActivityBtn.visibility = View.GONE
         } else {
-            button.visibility = View.VISIBLE
+            startPhotoCaptureActivityBtn.visibility = View.VISIBLE
         }
 
         if (!permissionsGranted()) {
             activityResultLauncher.launch(REQUIRED_PERMISSIONS) // get permissions
         }
 
-        val startPhotoCaptureActivityBtn: Button = findViewById(R.id.startPhotoCaptureActivityBtn)
-        startPhotoCaptureActivityBtn.setOnClickListener {
-            val intent = Intent(baseContext, PhotoCaptureActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     private fun permissionsGranted(): Boolean {

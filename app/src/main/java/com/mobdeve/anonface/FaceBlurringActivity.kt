@@ -3,12 +3,15 @@ package com.mobdeve.anonface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.slider.Slider
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
@@ -39,8 +42,32 @@ class FaceBlurringActivity : AppCompatActivity() {
             .build()
         faceDetector = FaceDetection.getClient(options)
 
-        val confirmBtn: Button = findViewById(R.id.confirmBtn)
-        confirmBtn.setOnClickListener { processImg(uri) }
+        val saveBtn: Button = findViewById(R.id.saveBtn)
+        saveBtn.setOnClickListener { processImg(uri) }
+
+        // toggle blur slider
+        var blurToggle: ImageButton = findViewById(R.id.blurToggle)
+        var blurSlider: Slider = findViewById(R.id.blurSlider)
+        var click = 0 // 0 -> show slider; 1 -> hide slider
+        blurToggle.setOnClickListener {
+            // set slider to visible, blurToggle to selected state
+                if(click == 0) {
+                    blurSlider.visibility = Slider.VISIBLE
+                    blurToggle.setBackgroundResource(R.drawable.blur_selected)
+                    click = 1
+                } else { // set slider to invisible, blurToggle to deselected
+                    blurSlider.visibility = Slider.INVISIBLE
+                    blurToggle.setBackgroundResource(R.drawable.blur_deselected)
+                    click = 0
+                }
+        }
+        // unblur button
+        // TODO: set disabled if slider value == 0, button design should be outline; if enabled: button is filled
+
+        // exit button
+        // TODO: put overlay asking to discard or keep changes
+        // OPTIONS: keep editing (stay in activity) or discard (go back to camera)
+
     }
 
     private fun processImg(uri: Uri) {

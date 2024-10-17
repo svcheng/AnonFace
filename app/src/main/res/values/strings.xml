@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">AnonFace</string>
+    <!--  LANDING  -->
     <string name="landing_button1">Next</string>
     <string name="landing_button2">Take Photo</string>
     <string name="landing_text1">Welcome to AnonFace.</string>
     <string name="landing_text2">Welcome to AnonFace 2.</string>
     <string name="landing_text3">Welcome to AnonFace 3.</string>
+
+    <!--  Face blurring  -->
+    <string name="blurring_blur">Blur</string>
+    <string name="blurring_unblur">Unblur</string>
+    <string name="blurring_save">Save copy</string>
 </resources>
