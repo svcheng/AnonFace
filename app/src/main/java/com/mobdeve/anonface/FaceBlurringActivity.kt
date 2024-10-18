@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
@@ -67,6 +68,18 @@ class FaceBlurringActivity : AppCompatActivity() {
         // exit button
         // TODO: put overlay asking to discard or keep changes
         // OPTIONS: keep editing (stay in activity) or discard (go back to camera)
+        var exit: ImageButton = findViewById(R.id.exit)
+        exit.setOnClickListener{
+            MaterialAlertDialogBuilder(baseContext)
+                .setTitle(resources.getString(R.string.blurring_overlay_title))
+                .setNegativeButton(resources.getString(R.string.blurring_overlay_keep)) { dialog, which ->
+                    // Respond to negative button press
+                }
+                .setPositiveButton(resources.getString(R.string.blurring_overlay_discard)) { dialog, which ->
+                    // Respond to positive button press
+                }
+                .show()
+        }
 
     }
 

@@ -33,5 +33,7 @@ class GalleryActivity : AppCompatActivity() {
         var galleryRecycler : RecyclerView = findViewById(R.id.galleryRecycler)
         galleryRecycler.adapter = GalleryAdapter(galleryPhotos)
         galleryRecycler.layoutManager = GridLayoutManager(this,3)
+
+        // Back button, finish() activity
     }
 }
