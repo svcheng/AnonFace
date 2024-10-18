@@ -53,6 +53,12 @@ class PhotoCaptureActivity : AppCompatActivity() {
                     CameraSelector.DEFAULT_BACK_CAMERA
                 }
         }
+
+        val galleryBtn : ImageButton = findViewById(R.id.galleryBtn)
+        galleryBtn.setOnClickListener {
+            val intent = Intent(baseContext, GalleryActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun takePhoto() {
