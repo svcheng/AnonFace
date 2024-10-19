@@ -12,7 +12,7 @@
     <string name="blurring_unblur">Unblur</string>
     <string name="blurring_save">Save copy</string>
     <string name="blurring_overlay_title">Discard changes?</string>
-    <string name="blurring_overlay_keep">Keep changes</string>
+    <string name="blurring_overlay_keep">Keep editing</string>
     <string name="blurring_overlay_discard">Discard</string>
 
     <!--  Face gallery  -->

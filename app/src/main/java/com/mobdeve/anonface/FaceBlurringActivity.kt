@@ -3,7 +3,6 @@ package com.mobdeve.anonface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -31,11 +30,18 @@ class FaceBlurringActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        capturedPhoto = findViewById(R.id.capturedPhoto)
 
         // display captured image in the ImageView
-        val uri = Uri.parse(intent.getStringExtra("uri"))
-        capturedPhoto = findViewById(R.id.capturedPhoto)
-        capturedPhoto.setImageURI(uri)
+        val intentUri = intent.getStringExtra("uri")
+        val image = intent.getIntExtra("image", 0)
+        lateinit var uri: Uri
+        if(intentUri != null) {
+            uri = Uri.parse(intent.getStringExtra("uri"))
+            capturedPhoto.setImageURI(uri)
+        } else if (image != 0) {
+            capturedPhoto.setImageResource(image)
+        }
 
         // initialize face detector
         val options = FaceDetectorOptions.Builder()
@@ -44,7 +50,10 @@ class FaceBlurringActivity : AppCompatActivity() {
         faceDetector = FaceDetection.getClient(options)
 
         val saveBtn: Button = findViewById(R.id.saveBtn)
-        saveBtn.setOnClickListener { processImg(uri) }
+        saveBtn.setOnClickListener {
+            processImg(uri)
+            finish()
+        }
 
         // toggle blur slider
         var blurToggle: ImageButton = findViewById(R.id.blurToggle)
@@ -63,24 +72,21 @@ class FaceBlurringActivity : AppCompatActivity() {
                 }
         }
         // unblur button
-        // TODO: set disabled if slider value == 0, button design should be outline; if enabled: button is filled
-
-        // exit button
-        // TODO: put overlay asking to discard or keep changes
-        // OPTIONS: keep editing (stay in activity) or discard (go back to camera)
-        var exit: ImageButton = findViewById(R.id.exit)
-        exit.setOnClickListener{
-            MaterialAlertDialogBuilder(baseContext)
-                .setTitle(resources.getString(R.string.blurring_overlay_title))
-                .setNegativeButton(resources.getString(R.string.blurring_overlay_keep)) { dialog, which ->
-                    // Respond to negative button press
-                }
-                .setPositiveButton(resources.getString(R.string.blurring_overlay_discard)) { dialog, which ->
-                    // Respond to positive button press
-                }
-                .show()
+        var unblurBtn : Button = findViewById(R.id.unblurBtn)
+        blurSlider.addOnChangeListener { blurSlider, _, _ ->
+            // If value of slider == 0, disable
+            if(blurSlider.value.toInt() == 0) {
+                unblurBtn.isEnabled = false
+            } else {
+                unblurBtn.isEnabled = true
+            }
         }
 
+        // exit button
+        var exit: ImageButton = findViewById(R.id.exit)
+        exit.setOnClickListener {
+            showDialog()
+        }
     }
 
     private fun processImg(uri: Uri) {
@@ -93,4 +99,18 @@ class FaceBlurringActivity : AppCompatActivity() {
             }
             .addOnFailureListener { Log.e("", "ML Kit unable to process image") }
     }
+
+    // Material dialog
+    private fun showDialog() {
+        MaterialAlertDialogBuilder(this, R.style.DialogTheme)
+            .setTitle(R.string.blurring_overlay_title)
+            .setNegativeButton(R.string.blurring_overlay_keep) { dialog, which -> }
+            .setPositiveButton(R.string.blurring_overlay_discard) { dialog, which ->
+                finish()
+            }
+            .show()
+
+    }
 }
+
+

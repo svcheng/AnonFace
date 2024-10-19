@@ -4,9 +4,9 @@
     <item android:state_pressed="false">
         <shape android:shape="oval">
             <stroke
-                android:color="@color/mid1_purple"
+                android:color="@color/md_theme_secondary"
                 android:width="5dp"/>
-            <solid android:color="@color/dark_yellow"/>
+            <solid android:color="@color/md_theme_surfaceVariant_highContrast"/>
         </shape>
     </item>
 
@@ -14,9 +14,9 @@
     <item android:state_pressed="true">
         <shape android:shape="oval">
             <stroke
-                android:color="@color/desat_purple"
+                android:color="@color/md_theme_onPrimaryContainer"
                 android:width="5dp"/>
-            <solid android:color="@color/desat_yellow"/>
+            <solid android:color="@color/md_theme_outlineVariant_mediumContrast"/>
         </shape>
     </item>
 </selector>

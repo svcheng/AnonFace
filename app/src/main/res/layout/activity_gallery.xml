@@ -5,32 +5,34 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_yellow"
+    android:background="@color/md_theme_onPrimary"
     tools:context=".GalleryActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/galleryToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/light_purple"
+        android:background="@color/md_theme_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
-            android:id="@+id/back"
+            android:id="@+id/backBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/back"
-            android:backgroundTint="@color/light_yellow"/>
+            android:backgroundTint="@color/md_theme_onPrimary"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:padding="10dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             android:text="@string/gallery_recents"
-            android:textColor="@color/light_yellow"
+            android:textColor="@color/md_theme_onPrimary"
             android:textSize="25sp" />
     </androidx.appcompat.widget.Toolbar>
 

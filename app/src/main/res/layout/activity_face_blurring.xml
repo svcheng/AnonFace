@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FaceBlurringActivity"
-    android:background="@color/light_yellow">
+    android:background="@color/md_theme_onPrimary">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/blurringToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/light_purple"
+        android:background="@color/md_theme_primary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -22,7 +22,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/close"
-            android:backgroundTint="@color/light_yellow"/>
+            android:backgroundTint="@color/md_theme_onPrimary"/>
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -30,23 +30,22 @@
         android:id="@+id/capturedPhoto"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/unblurBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blurringToolbar"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/blurringToolbar" />
 
     <Button
         android:id="@+id/unblurBtn"
-        android:layout_width="115dp"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:enabled="false"
         android:text="@string/blurring_unblur"
-        android:textColor="@color/light_yellow"
-        android:backgroundTint="@color/mid1_purple"
-        app:layout_constraintTop_toTopOf="@+id/blurToggle"
         app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
         app:layout_constraintEnd_toStartOf="@+id/blurToggle"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/blurToggle" />
 
     <ImageButton
         android:id="@+id/blurToggle"
@@ -62,11 +61,9 @@
 
     <Button
         android:id="@+id/saveBtn"
-        android:layout_width="115dp"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="@string/blurring_save"
-        android:textColor="@color/light_yellow"
-        android:backgroundTint="@color/mid1_purple"
         app:layout_constraintTop_toTopOf="@+id/blurToggle"
         app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
         app:layout_constraintStart_toEndOf="@+id/blurToggle"
@@ -76,19 +73,20 @@
         android:id="@+id/blurSlider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="10dp"
         android:stepSize="1"
         android:valueFrom="0"
         android:valueTo="100"
         android:visibility="invisible"
+        android:theme="@style/SliderTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/blurToggle"
-        app:thumbColor="@color/mid1_purple"
-        app:thumbStrokeColor="@color/mid1_purple"
+        app:thumbColor="#7D8ABC"
+        app:thumbStrokeColor="#7D8ABC"
         app:tickVisible="false"
-        app:trackColorActive="@color/mid1_purple"
-        app:trackColorInactive="@color/desat_purple" />
+        app:trackColorActive="#7D8ABC"
+        app:trackColorInactive="#304463" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

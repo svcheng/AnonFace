@@ -1,6 +1,7 @@
 package com.mobdeve.anonface
 
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,16 +25,37 @@ class GalleryActivity : AppCompatActivity() {
             GalleryDetails(R.drawable.gallery_1),
             GalleryDetails(R.drawable.gallery_2),
             GalleryDetails(R.drawable.gallery_3),
+            GalleryDetails(R.drawable.gallery_4),
+            GalleryDetails(R.drawable.gallery_5),
+            GalleryDetails(R.drawable.gallery_6),
+            GalleryDetails(R.drawable.gallery_7),
+            GalleryDetails(R.drawable.gallery_8),
+            GalleryDetails(R.drawable.gallery_9),
             GalleryDetails(R.drawable.gallery_2),
             GalleryDetails(R.drawable.gallery_3),
+            GalleryDetails(R.drawable.gallery_4),
+            GalleryDetails(R.drawable.gallery_5),
+            GalleryDetails(R.drawable.gallery_6),
+            GalleryDetails(R.drawable.gallery_7),
+            GalleryDetails(R.drawable.gallery_8),
+            GalleryDetails(R.drawable.gallery_9),
+            GalleryDetails(R.drawable.gallery_1),
+            GalleryDetails(R.drawable.gallery_6),
+            GalleryDetails(R.drawable.gallery_7),
+            GalleryDetails(R.drawable.gallery_8),
+            GalleryDetails(R.drawable.gallery_9),
             GalleryDetails(R.drawable.gallery_1)
         )
 
         // Recycler gallery
         var galleryRecycler : RecyclerView = findViewById(R.id.galleryRecycler)
-        galleryRecycler.adapter = GalleryAdapter(galleryPhotos)
+        galleryRecycler.adapter = GalleryAdapter(galleryPhotos,this)
         galleryRecycler.layoutManager = GridLayoutManager(this,3)
 
         // Back button, finish() activity
+        var backBtn : ImageButton = findViewById(R.id.backBtn)
+        backBtn.setOnClickListener {
+            finish()
+        }
     }
 }

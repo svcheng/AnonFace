@@ -26,8 +26,7 @@
             android:exported="false" />
         <activity
             android:name=".FaceBlurringActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light"/>
+            android:exported="false"/>
         <activity
             android:name=".PhotoCaptureActivity"
             android:exported="false" />
