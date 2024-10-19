@@ -13,24 +13,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/md_theme_primary"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/exit"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/close"
-            android:backgroundTint="@color/md_theme_onPrimary"/>
+            android:backgroundTint="@color/md_theme_onPrimary" />
 
     </androidx.appcompat.widget.Toolbar>
 
     <ImageView
         android:id="@+id/capturedPhoto"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="20dp"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@+id/unblurBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +41,6 @@
         android:id="@+id/unblurBtn"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:enabled="false"
         android:text="@string/blurring_unblur"
         app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
         app:layout_constraintEnd_toStartOf="@+id/blurToggle"
@@ -64,6 +64,7 @@
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:text="@string/blurring_save"
+        android:enabled="false"
         app:layout_constraintTop_toTopOf="@+id/blurToggle"
         app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
         app:layout_constraintStart_toEndOf="@+id/blurToggle"
@@ -73,7 +74,9 @@
         android:id="@+id/blurSlider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="5dp"
         android:stepSize="1"
         android:valueFrom="0"
         android:valueTo="100"
@@ -82,6 +85,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/blurToggle"
+        app:labelBehavior="gone"
         app:thumbColor="#7D8ABC"
         app:thumbStrokeColor="#7D8ABC"
         app:tickVisible="false"

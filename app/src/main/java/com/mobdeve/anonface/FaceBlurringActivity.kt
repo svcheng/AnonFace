@@ -71,14 +71,13 @@ class FaceBlurringActivity : AppCompatActivity() {
                     click = 0
                 }
         }
-        // unblur button
-        var unblurBtn : Button = findViewById(R.id.unblurBtn)
+
         blurSlider.addOnChangeListener { blurSlider, _, _ ->
-            // If value of slider == 0, disable
+            // If value of slider == 0, disable save button
             if(blurSlider.value.toInt() == 0) {
-                unblurBtn.isEnabled = false
+                saveBtn.isEnabled = false
             } else {
-                unblurBtn.isEnabled = true
+                saveBtn.isEnabled = true
             }
         }
 
