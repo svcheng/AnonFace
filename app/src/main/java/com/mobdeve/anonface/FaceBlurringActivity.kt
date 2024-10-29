@@ -29,21 +29,12 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import java.io.IOException
-import kotlin.math.PI
-import kotlin.math.exp
-import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
 class FaceBlurringActivity : AppCompatActivity() {
     private lateinit var capturedPhoto: ImageView
     private var boundingBoxes: MutableList<Rect> = mutableListOf()
-    private lateinit var sourceImageBitmap: Bitmap
-
-    private val sigma: Double = 1.0
-    private val kernelRadius: Int = 2
-    private val kernelWidth: Int = 2*kernelRadius + 1
-    private val kernel: MutableList<Double> = MutableList(kernelWidth * kernelWidth) { 1.0 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,19 +98,6 @@ class FaceBlurringActivity : AppCompatActivity() {
             showDialog()
         }
 
-        // initialize kernel
-
-        var kernelSum = 0.0
-        for (i in 0..<kernelWidth) {
-            for (j in 0..<kernelWidth) {
-                val g = gaussian2d(i, j)
-                kernel[i*kernelWidth + j] = g
-                kernelSum += g
-            }
-        }
-        // normalize values
-        kernel.map { x -> x / kernelSum }
-
         getFaceBoxes(uri)
     }
 
@@ -157,8 +135,8 @@ class FaceBlurringActivity : AppCompatActivity() {
                 }
 
                 // perform blurring
-                loadSourceBitmap(uri)
-                val blurred = blurFaces()// kernel width of 2*radius + 1
+                val kernelRadius = 60
+                val blurred = blurFacesBoxFilter(uri, kernelRadius)
                 capturedPhoto.setImageBitmap(blurred)
             }
             .addOnFailureListener {
@@ -167,78 +145,124 @@ class FaceBlurringActivity : AppCompatActivity() {
             }
     }
 
-    private fun loadSourceBitmap(uri: Uri) {
+    private fun loadSourceBitmap(uri: Uri): Bitmap? {
+        val tempBitmap: Bitmap
         try {
             if (Build.VERSION.SDK_INT < 28) {
-                sourceImageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                tempBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri).copy(Bitmap.Config.ARGB_8888, true)
             } else {
                 val source = ImageDecoder.createSource(contentResolver, uri)
                 // copy needed since decoded bitmap has hardware configuration, which does not allow .getPixel
-                sourceImageBitmap = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, false)
+                tempBitmap = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
             }
+            return tempBitmap
         } catch (e: Exception) {
             Log.e(null, "Unable to load image as bitmap")
             finish()
+            return null
         }
     }
 
-    private fun blurFaces(): Bitmap {
-        val res = sourceImageBitmap.copy(Bitmap.Config.ARGB_8888, true)
+    private fun blurFacesBoxFilter(uri: Uri, kernelRadius: Int): Bitmap? {
+        val temp = loadSourceBitmap(uri)
+        if (temp == null) {
+            return null
+        }
+        val kernelWidth: Int = 2*kernelRadius + 1
+        val scaleFactor: Double = 1.0 / (kernelWidth)
+        val width = temp.width
+        val height = temp.height
+        val res = temp.copy(Bitmap.Config.ARGB_8888, true)
 
-        for (x in kernelRadius..<res.width-kernelRadius) {
-            for (y in kernelRadius..<res.height-kernelRadius) {
-                var contained = false
-                for (box in boundingBoxes) {
-                    if (box.contains(x, y)) {
-                        contained = true
-                        break
-                    }
-                }
+        var color1: Int
+        var color2: Int
+        var newColor: Int
+        var sumRed: Int
+        var sumGreen: Int
+        var sumBlue: Int
 
-                if (!contained) {
-                    res.set(x, y, sourceImageBitmap.get(x, y))
-                    continue
-                }
+//        Toast.makeText(baseContext, "1", Toast.LENGTH_SHORT).show()
 
-                val newColor = gaussianConvolution(sourceImageBitmap, x, y)
-                res.set(x, y, newColor)
+        // horizontal pass - set pixels of temp with moving average of res
+        for (y in kernelRadius..<height-kernelRadius) {
+            // initialize sum
+            sumRed = 0
+            sumGreen = 0
+            sumBlue = 0
+            for (i in -kernelRadius..kernelRadius) {
+                color1 = res.get(kernelRadius+i, y)
+                sumRed += color1.red
+                sumGreen += color1.green
+                sumBlue += color1.blue
+            }
+            newColor = Color.argb(res.get(kernelRadius, y).alpha, (sumRed * scaleFactor).roundToInt(), (sumGreen * scaleFactor).roundToInt(), (sumBlue * scaleFactor).roundToInt())
+            temp.set(kernelRadius, y, newColor)
+
+            for (x in kernelRadius+1..<width-kernelRadius) {
+                color1 = res.get(x-kernelRadius-1, y)
+                color2 = res.get(x+kernelRadius, y)
+                sumRed = sumRed - color1.red + color2.red
+                sumGreen = sumGreen - color1.green + color2.green
+                sumBlue = sumBlue - color1.blue + color2.blue
+
+                newColor = Color.argb(res.get(x, y).alpha, (sumRed * scaleFactor).roundToInt(), (sumGreen * scaleFactor).roundToInt(), (sumBlue * scaleFactor).roundToInt())
+                temp.set(x, y, newColor)
             }
         }
+//        Toast.makeText(baseContext, "2", Toast.LENGTH_SHORT).show()
 
+        // vertical pass - set pixels of res with moving average of temp
+        for (x in kernelRadius..<width-kernelRadius) {
+            // initialize sum
+            sumRed = 0
+            sumGreen = 0
+            sumBlue = 0
+            for (i in -kernelRadius..kernelRadius) {
+                color1 = temp.get(x, kernelRadius+i)
+                sumRed += color1.red
+                sumGreen += color1.green
+                sumBlue += color1.blue
+            }
+
+            if (contained(x, kernelRadius)) {
+                newColor = Color.argb(
+                    temp.get(x, kernelRadius).alpha,
+                    (sumRed * scaleFactor).roundToInt(),
+                    (sumGreen * scaleFactor).roundToInt(),
+                    (sumBlue * scaleFactor).roundToInt()
+                )
+                res.set(x, kernelRadius, newColor)
+            }
+
+            for (y in kernelRadius+1..<height-kernelRadius) {
+                color1 = temp.get(x, y-kernelRadius-1)
+                color2 = temp.get(x, y+kernelRadius)
+                sumRed = sumRed - color1.red + color2.red
+                sumGreen = sumGreen - color1.green + color2.green
+                sumBlue = sumBlue - color1.blue + color2.blue
+
+                if (contained(x, y)) {
+                    newColor = Color.argb(
+                        temp.get(x, y).alpha,
+                        (sumRed * scaleFactor).roundToInt(),
+                        (sumGreen * scaleFactor).roundToInt(),
+                        (sumBlue * scaleFactor).roundToInt()
+                    )
+                    res.set(x, y, newColor)
+                }
+            }
+        }
+//        Toast.makeText(baseContext, "3", Toast.LENGTH_SHORT).show()
         return res
     }
 
-    private fun gaussian2d(x: Int, y: Int): Double {
-        val x2 = x.toDouble().pow(2)
-        val y2 = y.toDouble().pow(2)
-        val sigma2 = sigma.pow(2)
-        val numerator = exp(-(x2 + y2) / sigma2)
-        val denominator = 2 * PI * sigma2
-        return numerator / denominator
-    }
-
-    private fun gaussianConvolution(origBitmap: Bitmap, x: Int, y: Int): Int {
-        var sumRed = 0.0
-        var sumGreen = 0.0
-        var sumBlue = 0.0
-
-        // compute convolution
-        val kernelCenter: Int = kernelWidth / 2
-        for (i in -kernelRadius..kernelRadius) {
-            for (j in -kernelRadius..kernelRadius) {
-                val kernelVal = kernel[(kernelCenter + i) * kernelWidth + (kernelCenter + j)]
-
-                val oldRed = origBitmap.get(x+i, y+i).red
-                val oldGreen = origBitmap.get(x+i, y+i).green
-                val oldBlue = origBitmap.get(x+i, y+i).blue
-
-                sumRed += oldRed * kernelVal
-                sumGreen += oldGreen * kernelVal
-                sumBlue += oldBlue * kernelVal
+    private fun contained(x: Int, y: Int): Boolean {
+        for (box in boundingBoxes) {
+            if (box.contains(x, y)) {
+                return true
             }
         }
-
-        return Color.argb(origBitmap.get(x, y).alpha, sumRed.roundToInt(), sumGreen.roundToInt(), sumBlue.roundToInt())
+        return false
     }
 
     // Material dialog
