@@ -1,5 +1,7 @@
 [versions]
+activityVersion = "1.9.3"
 agp = "8.5.1"
+coilCompose = "2.1.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -12,7 +14,9 @@ constraintlayout = "2.1.4"
 materialVersion = "1.9.0"
 
 [libraries]
+androidx-activity-v193 = { module = "androidx.activity:activity", version.ref = "activityVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

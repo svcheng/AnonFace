@@ -1,5 +1,6 @@
 package com.mobdeve.anonface
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
@@ -49,20 +50,19 @@ class FaceBlurringActivity : AppCompatActivity() {
         // display captured image in the ImageView
         capturedPhoto = findViewById(R.id.capturedPhoto)
         val intentUri = intent.getStringExtra("uri")
-        val image = intent.getIntExtra("image", 0)
         lateinit var uri: Uri
         if(intentUri != null) {
             uri = Uri.parse(intent.getStringExtra("uri"))
             capturedPhoto.setImageURI(uri)
-        } else if (image != 0) {
-            capturedPhoto.setImageResource(image)
         }
 
         // save event
         val saveBtn: Button = findViewById(R.id.saveBtn)
         saveBtn.setOnClickListener {
             // todo: save processed image
-
+            val intent = Intent(this, PhotoCaptureActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
             finish()
         }
 
@@ -271,6 +271,9 @@ class FaceBlurringActivity : AppCompatActivity() {
             .setTitle(R.string.blurring_overlay_title)
             .setNegativeButton(R.string.blurring_overlay_keep) { dialog, which -> }
             .setPositiveButton(R.string.blurring_overlay_discard) { dialog, which ->
+                val intent = Intent(this, PhotoCaptureActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(intent)
                 finish()
             }
             .show()

@@ -49,6 +49,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.material.v190)
+    implementation(libs.androidx.activity.v193)
+    implementation(libs.coil.compose)
     implementation(kotlin("script-runtime"))
 
     // CameraX dependencies

@@ -17,4 +17,11 @@
 
     <!--  Face gallery  -->
     <string name="gallery_recents">Recents</string>
+
+    <!--  Face selection -->
+    <string name="selection_toblur">Select faces to blur</string>
+    <string name="selection_confirm">Confirm</string>
+    <string name="selection_overlay_title">Discard changes?</string>
+    <string name="selection_overlay_keep">Keep selecting</string>
+    <string name="selection_overlay_discard">Discard</string>
 </resources>

@@ -11,6 +11,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -22,11 +23,14 @@
         android:theme="@style/Theme.AnonFace"
         tools:targetApi="31">
         <activity
+            android:name=".FaceSelectionActivity"
+            android:exported="false" />
+        <activity
             android:name=".GalleryActivity"
             android:exported="false" />
         <activity
             android:name=".FaceBlurringActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".PhotoCaptureActivity"
             android:exported="false" />

@@ -2,12 +2,18 @@ package com.mobdeve.anonface
 
 import android.content.ContentValues
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
@@ -25,6 +31,25 @@ import java.util.Locale
 class PhotoCaptureActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityPhotoCaptureBinding
     private lateinit var cameraController: LifecycleCameraController
+    private var galleryUri: Uri? = null
+
+    // Get image from gallery
+    private val myActivityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            try {
+                if (result.data != null) {
+                    galleryUri = result.data!!.data
+                    //Picasso.get().load(galleryUri).into(viewBinding.tempImageIv)
+                    val intent = Intent(baseContext, FaceSelectionActivity::class.java)
+                    intent.putExtra("uri", galleryUri.toString())
+                    startActivity(intent)
+                }
+            } catch (exception: Exception) {
+                Log.d("TAG", "" + exception.localizedMessage)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +81,13 @@ class PhotoCaptureActivity : AppCompatActivity() {
 
         val galleryBtn : ImageButton = findViewById(R.id.galleryBtn)
         galleryBtn.setOnClickListener {
-            val intent = Intent(baseContext, GalleryActivity::class.java)
-            startActivity(intent)
+
+            val intent: Intent = Intent().apply {
+                type = "image/*"
+                action = Intent.ACTION_OPEN_DOCUMENT
+            }
+            myActivityResultLauncher.launch(Intent.createChooser(intent, "Select Picture"))
+
         }
     }
 
@@ -81,11 +111,13 @@ class PhotoCaptureActivity : AppCompatActivity() {
                     Log.e("", "Unable to take photo")
                 }
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val intent = Intent(baseContext, FaceBlurringActivity::class.java)
+                    val intent = Intent(baseContext, FaceSelectionActivity::class.java)
                     intent.putExtra("uri", outputFileResults.savedUri.toString())
                     startActivity(intent)
                 }
             }
         )
     }
+
+
 }
