@@ -33,16 +33,16 @@
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
         android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/unblurBtn"
+        app:layout_constraintBottom_toTopOf="@+id/blurBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/blurringToolbar" />
 
     <Button
-        android:id="@+id/unblurBtn"
+        android:id="@+id/blurBtn"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="@string/blurring_unblur"
+        android:text="@string/blurring_blur"
         app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
         app:layout_constraintEnd_toStartOf="@+id/blurToggle"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +80,7 @@
         android:stepSize="1"
         android:valueFrom="0"
         android:valueTo="100"
-        android:visibility="invisible"
+        android:visibility="visible"
         android:theme="@style/SliderTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

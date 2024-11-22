@@ -37,5 +37,4 @@ class PageIndicator(private val activity: Activity) : RecyclerView.OnScrollListe
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
     }
-
 }

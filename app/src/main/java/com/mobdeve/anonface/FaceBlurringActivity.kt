@@ -1,5 +1,6 @@
 package com.mobdeve.anonface
 
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -8,6 +9,7 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
@@ -29,13 +31,20 @@ import com.google.android.material.slider.Slider
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.Locale
 import kotlin.math.roundToInt
 
 
 class FaceBlurringActivity : AppCompatActivity() {
     private lateinit var capturedPhoto: ImageView
     private var boundingBoxes: MutableList<Rect> = mutableListOf()
+    private var blurredPhoto: Bitmap? = null
+    private lateinit var blurSlider: Slider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,46 +60,82 @@ class FaceBlurringActivity : AppCompatActivity() {
         capturedPhoto = findViewById(R.id.capturedPhoto)
         val intentUri = intent.getStringExtra("uri")
         lateinit var uri: Uri
-        if(intentUri != null) {
+        if (intentUri != null) {
             uri = Uri.parse(intent.getStringExtra("uri"))
             capturedPhoto.setImageURI(uri)
+        }
+
+        // blur event
+        val blurBtn: Button = findViewById(R.id.blurBtn)
+        blurBtn.setOnClickListener {
+            val kernelRadius = 60
+            blurredPhoto = blurFacesBoxFilter(uri)
+            if (blurredPhoto != null) {
+                capturedPhoto.setImageBitmap(blurredPhoto)
+            }
         }
 
         // save event
         val saveBtn: Button = findViewById(R.id.saveBtn)
         saveBtn.setOnClickListener {
-            // todo: save processed image
-            val intent = Intent(this, PhotoCaptureActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-            finish()
-        }
+            // todo: save processed
+            if (blurredPhoto != null) {
+                val filename = "blurred_" + SimpleDateFormat("yyyy:MM:dd/HH:mm:ss", Locale.TAIWAN)
+                    .format(System.currentTimeMillis()) + ".png"
 
-        // toggle blur slider
-        val blurToggle: ImageButton = findViewById(R.id.blurToggle)
-        val blurSlider: Slider = findViewById(R.id.blurSlider)
-        var click = 0 // 0 -> show slider; 1 -> hide slider
-        blurToggle.setOnClickListener {
-            // set slider to visible, blurToggle to selected state
-                if(click == 0) {
-                    blurSlider.visibility = Slider.VISIBLE
-                    blurToggle.setBackgroundResource(R.drawable.blur_selected)
-                    click = 1
-                } else { // set slider to invisible, blurToggle to deselected
-                    blurSlider.visibility = Slider.INVISIBLE
-                    blurToggle.setBackgroundResource(R.drawable.blur_deselected)
-                    click = 0
+                val dir = File(Environment.getExternalStorageDirectory().toString() + "/AnonFace")
+                if (!dir.exists()) {
+                    dir.mkdirs()
                 }
-        }
+                val imageFile: File = File(dir, filename)
 
-        blurSlider.addOnChangeListener { blurSlider, _, _ ->
-            // If value of slider == 0, disable save button
-            if(blurSlider.value.toInt() == 0) {
-                saveBtn.isEnabled = false
-            } else {
-                saveBtn.isEnabled = true
+                saveImageToStream(blurredPhoto!!, FileOutputStream(imageFile))
+                if (imageFile.absolutePath != null) {
+                    val values = contentValues()
+                    values.put(MediaStore.Images.Media.DATA, imageFile.absolutePath)
+                    // .DATA is deprecated in API 29
+                    applicationContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                }
+//                try {
+//                    val out: FileOutputStream = FileOutputStream(imageFile)
+//                    blurredPhoto!!.compress(Bitmap.CompressFormat.PNG, 100, out)
+//                    out.flush()
+//                    out.close()
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+                finish()
             }
         }
+
+        // blur slider
+        val blurToggle: ImageButton = findViewById(R.id.blurToggle)
+        blurSlider = findViewById(R.id.blurSlider)
+        var click = 0 // 0 -> show slider; 1 -> hide slider
+//        blurToggle.setOnClickListener {
+//            // set slider to visible, blurToggle to selected state
+//                if(click == 0) {
+//                    blurSlider.visibility = Slider.VISIBLE
+//                    blurToggle.setBackgroundResource(R.drawable.blur_selected)
+//                    click = 1
+//                } else { // set slider to invisible, blurToggle to deselected
+//                    blurSlider.visibility = Slider.INVISIBLE
+//                    blurToggle.setBackgroundResource(R.drawable.blur_deselected)
+//                    click = 0
+//                }
+//        }
+
+        blurSlider.setValueTo(200.0f)
+        blurSlider.setValueFrom(30.0f)
+        blurSlider.value = 80.0f
+//        blurSlider.addOnChangeListener { blurSlider, _, _ ->
+//            // If value of slider == 0, disable save button
+//            if(blurSlider.value.toInt() == 0) {
+//                saveBtn.isEnabled = false
+//            } else {
+//                saveBtn.isEnabled = true
+//            }
+//        }
 
         // exit button
         val exit: ImageButton = findViewById(R.id.exit)
@@ -99,6 +144,25 @@ class FaceBlurringActivity : AppCompatActivity() {
         }
 
         getFaceBoxes(uri)
+    }
+
+    private fun contentValues() : ContentValues {
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        return values
+    }
+
+    private fun saveImageToStream(bitmap: Bitmap, outputStream: OutputStream?) {
+        if (outputStream != null) {
+            try {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outputStream.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun getFaceBoxes(uri: Uri) {
@@ -116,33 +180,32 @@ class FaceBlurringActivity : AppCompatActivity() {
 
         // initialize face detector
         val options = FaceDetectorOptions.Builder()
-            .setMinFaceSize(0.05f)
+            .setMinFaceSize(0.03f)
             .build()
         val faceDetector = FaceDetection.getClient(options)
 
-        faceDetector.process(image)
-            .addOnSuccessListener {
-                faces ->
-                // get bounding boxes of each face
-                for (face in faces) {
-                    boundingBoxes.add(face.boundingBox)
-                }
-
-                // end if no faces detected
-                if (faces.size == 0) {
-                    Toast.makeText(baseContext, failureMsg, Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-
-                // perform blurring
-                val kernelRadius = 60
-                val blurred = blurFacesBoxFilter(uri, kernelRadius)
-                capturedPhoto.setImageBitmap(blurred)
+        try {
+            val task = faceDetector.process(image)
+            while (!task.isComplete) {
+                continue
             }
-            .addOnFailureListener {
+            val faces = task.result
+
+            // end if no faces detected
+            if (faces.size == 0) {
                 Toast.makeText(baseContext, failureMsg, Toast.LENGTH_SHORT).show()
                 finish()
+                return
             }
+            for (face in faces) {
+                boundingBoxes.add(face.boundingBox)
+            }
+        } catch (e: Exception) {
+            Toast.makeText(baseContext, failureMsg, Toast.LENGTH_SHORT).show()
+            finish()
+        } finally {
+            faceDetector.close()
+        }
     }
 
     private fun loadSourceBitmap(uri: Uri): Bitmap? {
@@ -163,11 +226,12 @@ class FaceBlurringActivity : AppCompatActivity() {
         }
     }
 
-    private fun blurFacesBoxFilter(uri: Uri, kernelRadius: Int): Bitmap? {
+    private fun blurFacesBoxFilter(uri: Uri): Bitmap? {
         val temp = loadSourceBitmap(uri)
         if (temp == null) {
             return null
         }
+        val kernelRadius = blurSlider.value.toInt()
         val kernelWidth: Int = 2*kernelRadius + 1
         val scaleFactor: Double = 1.0 / (kernelWidth)
         val width = temp.width
@@ -180,8 +244,6 @@ class FaceBlurringActivity : AppCompatActivity() {
         var sumRed: Int
         var sumGreen: Int
         var sumBlue: Int
-
-//        Toast.makeText(baseContext, "1", Toast.LENGTH_SHORT).show()
 
         // horizontal pass - set pixels of temp with moving average of res
         for (y in kernelRadius..<height-kernelRadius) {
@@ -209,7 +271,6 @@ class FaceBlurringActivity : AppCompatActivity() {
                 temp.set(x, y, newColor)
             }
         }
-//        Toast.makeText(baseContext, "2", Toast.LENGTH_SHORT).show()
 
         // vertical pass - set pixels of res with moving average of temp
         for (x in kernelRadius..<width-kernelRadius) {
@@ -252,7 +313,7 @@ class FaceBlurringActivity : AppCompatActivity() {
                 }
             }
         }
-//        Toast.makeText(baseContext, "3", Toast.LENGTH_SHORT).show()
+
         return res
     }
 

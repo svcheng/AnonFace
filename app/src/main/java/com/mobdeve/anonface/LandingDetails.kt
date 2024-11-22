@@ -7,5 +7,4 @@ class LandingDetails(background: Int, flairText: Int) {
 
     var flairText = flairText
         private set
-
 }

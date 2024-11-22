@@ -6,20 +6,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
@@ -41,7 +35,7 @@ class PhotoCaptureActivity : AppCompatActivity() {
                 if (result.data != null) {
                     galleryUri = result.data!!.data
                     //Picasso.get().load(galleryUri).into(viewBinding.tempImageIv)
-                    val intent = Intent(baseContext, FaceSelectionActivity::class.java)
+                    val intent = Intent(baseContext, FaceBlurringActivity::class.java)
                     intent.putExtra("uri", galleryUri.toString())
                     startActivity(intent)
                 }
@@ -87,7 +81,6 @@ class PhotoCaptureActivity : AppCompatActivity() {
                 action = Intent.ACTION_OPEN_DOCUMENT
             }
             myActivityResultLauncher.launch(Intent.createChooser(intent, "Select Picture"))
-
         }
     }
 
@@ -97,7 +90,7 @@ class PhotoCaptureActivity : AppCompatActivity() {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/AnonFace-No-Blur")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/AnonFace-Temp")
         }
         val outputOptions = ImageCapture.OutputFileOptions
             .Builder(contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
@@ -111,13 +104,11 @@ class PhotoCaptureActivity : AppCompatActivity() {
                     Log.e("", "Unable to take photo")
                 }
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    val intent = Intent(baseContext, FaceSelectionActivity::class.java)
+                    val intent = Intent(baseContext, FaceBlurringActivity::class.java)
                     intent.putExtra("uri", outputFileResults.savedUri.toString())
                     startActivity(intent)
                 }
             }
         )
     }
-
-
 }

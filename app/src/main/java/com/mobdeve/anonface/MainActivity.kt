@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity() {
         if (!permissionsGranted()) {
             activityResultLauncher.launch(REQUIRED_PERMISSIONS) // get permissions
         }
-
     }
 
     private fun permissionsGranted(): Boolean {

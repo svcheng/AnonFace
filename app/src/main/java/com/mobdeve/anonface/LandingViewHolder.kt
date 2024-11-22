@@ -12,6 +12,5 @@ class LandingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bindData(landingDetails: LandingDetails) {
         frame.background = itemView.resources.getDrawable(landingDetails.background)
         flairText.text = itemView.resources.getString(landingDetails.flairText)
-
     }
 }
