@@ -56,8 +56,12 @@ class FaceBlurringActivity : AppCompatActivity() {
             insets
         }
 
-        // display captured image in the ImageView
         capturedPhoto = findViewById(R.id.capturedPhoto)
+        val blurBtn: Button = findViewById(R.id.blurBtn)
+        val saveBtn: Button = findViewById(R.id.saveBtn)
+        blurSlider = findViewById(R.id.blurSlider)
+
+        // display captured image in the ImageView
         val intentUri = intent.getStringExtra("uri")
         lateinit var uri: Uri
         if (intentUri != null) {
@@ -66,76 +70,30 @@ class FaceBlurringActivity : AppCompatActivity() {
         }
 
         // blur event
-        val blurBtn: Button = findViewById(R.id.blurBtn)
         blurBtn.setOnClickListener {
-            val kernelRadius = 60
             blurredPhoto = blurFacesBoxFilter(uri)
             if (blurredPhoto != null) {
                 capturedPhoto.setImageBitmap(blurredPhoto)
+                saveBtn.isEnabled = true
             }
         }
 
         // save event
-        val saveBtn: Button = findViewById(R.id.saveBtn)
         saveBtn.setOnClickListener {
             // todo: save processed
             if (blurredPhoto != null) {
                 val filename = "blurred_" + SimpleDateFormat("yyyy:MM:dd/HH:mm:ss", Locale.TAIWAN)
                     .format(System.currentTimeMillis()) + ".png"
 
-                val dir = File(Environment.getExternalStorageDirectory().toString() + "/AnonFace")
-                if (!dir.exists()) {
-                    dir.mkdirs()
-                }
-                val imageFile: File = File(dir, filename)
-
-                saveImageToStream(blurredPhoto!!, FileOutputStream(imageFile))
-                if (imageFile.absolutePath != null) {
-                    val values = contentValues()
-                    values.put(MediaStore.Images.Media.DATA, imageFile.absolutePath)
-                    // .DATA is deprecated in API 29
-                    applicationContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-                }
-//                try {
-//                    val out: FileOutputStream = FileOutputStream(imageFile)
-//                    blurredPhoto!!.compress(Bitmap.CompressFormat.PNG, 100, out)
-//                    out.flush()
-//                    out.close()
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
+                saveImage(blurredPhoto!!, filename)
                 finish()
             }
         }
 
         // blur slider
-        val blurToggle: ImageButton = findViewById(R.id.blurToggle)
-        blurSlider = findViewById(R.id.blurSlider)
-        var click = 0 // 0 -> show slider; 1 -> hide slider
-//        blurToggle.setOnClickListener {
-//            // set slider to visible, blurToggle to selected state
-//                if(click == 0) {
-//                    blurSlider.visibility = Slider.VISIBLE
-//                    blurToggle.setBackgroundResource(R.drawable.blur_selected)
-//                    click = 1
-//                } else { // set slider to invisible, blurToggle to deselected
-//                    blurSlider.visibility = Slider.INVISIBLE
-//                    blurToggle.setBackgroundResource(R.drawable.blur_deselected)
-//                    click = 0
-//                }
-//        }
-
         blurSlider.setValueTo(200.0f)
-        blurSlider.setValueFrom(30.0f)
+        blurSlider.setValueFrom(15.0f)
         blurSlider.value = 80.0f
-//        blurSlider.addOnChangeListener { blurSlider, _, _ ->
-//            // If value of slider == 0, disable save button
-//            if(blurSlider.value.toInt() == 0) {
-//                saveBtn.isEnabled = false
-//            } else {
-//                saveBtn.isEnabled = true
-//            }
-//        }
 
         // exit button
         val exit: ImageButton = findViewById(R.id.exit)
@@ -143,18 +101,19 @@ class FaceBlurringActivity : AppCompatActivity() {
             showDialog()
         }
 
+        // invoke ML-kit to get face bounding boxes
         getFaceBoxes(uri)
     }
 
-    private fun contentValues() : ContentValues {
+    private fun getContentValues() : ContentValues {
         val values = ContentValues()
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
         return values
     }
 
-    private fun saveImageToStream(bitmap: Bitmap, outputStream: OutputStream?) {
+    private fun saveToStream(outputStream: OutputStream?, bitmap: Bitmap) {
         if (outputStream != null) {
             try {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -162,6 +121,34 @@ class FaceBlurringActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    private fun saveImage(bitmap: Bitmap, fileName: String) {
+        val folderName = "AnonFace"
+        val contentValues = getContentValues()
+
+        if (Build.VERSION.SDK_INT >= 29) {
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/$folderName")
+            contentValues.put(MediaStore.Images.Media.IS_PENDING, true)
+
+            val destUri: Uri? = applicationContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            if (destUri != null) {
+                saveToStream(applicationContext.contentResolver.openOutputStream(destUri), bitmap)
+                contentValues.put(MediaStore.Images.Media.IS_PENDING, false)
+                applicationContext.contentResolver.update(destUri, contentValues, null, null)
+            }
+        } else {
+            val directory = File(Environment.getExternalStorageDirectory().toString() + "/" + folderName)
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+            val file = File(directory, fileName)
+
+            saveToStream(FileOutputStream(file), bitmap)
+            contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
+            applicationContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
         }
     }
 
@@ -185,6 +172,7 @@ class FaceBlurringActivity : AppCompatActivity() {
         val faceDetector = FaceDetection.getClient(options)
 
         try {
+            // invoke face detector asynchronously and await its completion
             val task = faceDetector.process(image)
             while (!task.isComplete) {
                 continue
@@ -215,7 +203,7 @@ class FaceBlurringActivity : AppCompatActivity() {
                 tempBitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri).copy(Bitmap.Config.ARGB_8888, true)
             } else {
                 val source = ImageDecoder.createSource(contentResolver, uri)
-                // copy needed since decoded bitmap has hardware configuration, which does not allow .getPixel
+                // copy needed since decoded bitmap has hardware configuration, which does not allow .getPixel() to be called
                 tempBitmap = ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
             }
             return tempBitmap
@@ -227,17 +215,16 @@ class FaceBlurringActivity : AppCompatActivity() {
     }
 
     private fun blurFacesBoxFilter(uri: Uri): Bitmap? {
-        val temp = loadSourceBitmap(uri)
-        if (temp == null) {
-            return null
-        }
+        val temp = loadSourceBitmap(uri) ?: return null
+        val out = temp.copy(Bitmap.Config.ARGB_8888, true)
+
         val kernelRadius = blurSlider.value.toInt()
         val kernelWidth: Int = 2*kernelRadius + 1
         val scaleFactor: Double = 1.0 / (kernelWidth)
         val width = temp.width
         val height = temp.height
-        val res = temp.copy(Bitmap.Config.ARGB_8888, true)
 
+        // temporary variables
         var color1: Int
         var color2: Int
         var newColor: Int
@@ -245,46 +232,59 @@ class FaceBlurringActivity : AppCompatActivity() {
         var sumGreen: Int
         var sumBlue: Int
 
-        // horizontal pass - set pixels of temp with moving average of res
+        // horizontal pass - set pixels of temp with moving average of out's pixels
         for (y in kernelRadius..<height-kernelRadius) {
-            // initialize sum
+            // initialize sum with the first pixel in the row
             sumRed = 0
             sumGreen = 0
             sumBlue = 0
+            // compute average of pixels in kernel window
             for (i in -kernelRadius..kernelRadius) {
-                color1 = res.get(kernelRadius+i, y)
+                color1 = out.get(kernelRadius+i, y)
                 sumRed += color1.red
                 sumGreen += color1.green
                 sumBlue += color1.blue
             }
-            newColor = Color.argb(res.get(kernelRadius, y).alpha, (sumRed * scaleFactor).roundToInt(), (sumGreen * scaleFactor).roundToInt(), (sumBlue * scaleFactor).roundToInt())
+            newColor = Color.argb(
+                out.get(kernelRadius, y).alpha,
+                (sumRed * scaleFactor).roundToInt(),
+                (sumGreen * scaleFactor).roundToInt(),
+                (sumBlue * scaleFactor).roundToInt()
+            )
             temp.set(kernelRadius, y, newColor)
 
+            // set the other pixels in the row, tracking the local sum
             for (x in kernelRadius+1..<width-kernelRadius) {
-                color1 = res.get(x-kernelRadius-1, y)
-                color2 = res.get(x+kernelRadius, y)
+                color1 = out.get(x-kernelRadius-1, y) // pixel that left the window
+                color2 = out.get(x+kernelRadius, y) // pixel that entered the window
                 sumRed = sumRed - color1.red + color2.red
                 sumGreen = sumGreen - color1.green + color2.green
                 sumBlue = sumBlue - color1.blue + color2.blue
 
-                newColor = Color.argb(res.get(x, y).alpha, (sumRed * scaleFactor).roundToInt(), (sumGreen * scaleFactor).roundToInt(), (sumBlue * scaleFactor).roundToInt())
+                newColor = Color.argb(
+                    out.get(x, y).alpha,
+                    (sumRed * scaleFactor).roundToInt(),
+                    (sumGreen * scaleFactor).roundToInt(),
+                    (sumBlue * scaleFactor).roundToInt()
+                )
                 temp.set(x, y, newColor)
             }
         }
 
-        // vertical pass - set pixels of res with moving average of temp
+        // vertical pass - set pixels of out with moving average of temp's pixels
         for (x in kernelRadius..<width-kernelRadius) {
-            // initialize sum
+            // initialize sum with the first pixel in the column
             sumRed = 0
             sumGreen = 0
             sumBlue = 0
+            // compute average of pixels in kernel window
             for (i in -kernelRadius..kernelRadius) {
                 color1 = temp.get(x, kernelRadius+i)
                 sumRed += color1.red
                 sumGreen += color1.green
                 sumBlue += color1.blue
             }
-
+            // only modify pixel value if pixel is part of a face
             if (contained(x, kernelRadius)) {
                 newColor = Color.argb(
                     temp.get(x, kernelRadius).alpha,
@@ -292,12 +292,13 @@ class FaceBlurringActivity : AppCompatActivity() {
                     (sumGreen * scaleFactor).roundToInt(),
                     (sumBlue * scaleFactor).roundToInt()
                 )
-                res.set(x, kernelRadius, newColor)
+                out.set(x, kernelRadius, newColor)
             }
 
+            // set the other pixels in the column, tracking the local sum
             for (y in kernelRadius+1..<height-kernelRadius) {
-                color1 = temp.get(x, y-kernelRadius-1)
-                color2 = temp.get(x, y+kernelRadius)
+                color1 = temp.get(x, y-kernelRadius-1) // pixel that left the window
+                color2 = temp.get(x, y+kernelRadius) // pixel that entered the window
                 sumRed = sumRed - color1.red + color2.red
                 sumGreen = sumGreen - color1.green + color2.green
                 sumBlue = sumBlue - color1.blue + color2.blue
@@ -309,14 +310,15 @@ class FaceBlurringActivity : AppCompatActivity() {
                         (sumGreen * scaleFactor).roundToInt(),
                         (sumBlue * scaleFactor).roundToInt()
                     )
-                    res.set(x, y, newColor)
+                    out.set(x, y, newColor)
                 }
             }
         }
 
-        return res
+        return out
     }
 
+    // returns whether the given point is contained in any of the face bounding boxes
     private fun contained(x: Int, y: Int): Boolean {
         for (box in boundingBoxes) {
             if (box.contains(x, y)) {
