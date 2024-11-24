@@ -3,11 +3,14 @@ package com.mobdeve.anonface
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -18,6 +21,8 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
+    private var galleryUri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -26,6 +31,24 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        // Get image from gallery
+        val myActivityResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == RESULT_OK) {
+                try {
+                    if (result.data != null) {
+                        galleryUri = result.data!!.data
+                        //Picasso.get().load(galleryUri).into(viewBinding.tempImageIv)
+                        val intent = Intent(baseContext, FaceBlurringActivity::class.java)
+                        intent.putExtra("uri", galleryUri.toString())
+                        startActivity(intent)
+                    }
+                } catch (exception: Exception) {
+                    Log.d("TAG", "" + exception.localizedMessage)
+                }
+            }
         }
 
         //Recycler image slider
@@ -43,6 +66,8 @@ class MainActivity : AppCompatActivity() {
         landingRecycler.addOnScrollListener(PageIndicator(this))
 
         var currPos : Int = 0
+
+        // Buttons
         val startPhotoCaptureActivityBtn : Button = findViewById(R.id.startPhotoCaptureActivityBtn)
         startPhotoCaptureActivityBtn.setOnClickListener {
             currPos = (landingRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
@@ -51,10 +76,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val selectFromGalleryBtn : Button = findViewById(R.id.selectFromGalleryBtn)
+        selectFromGalleryBtn.setOnClickListener {
+            currPos = (landingRecycler.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            landingRecycler.smoothScrollToPosition(currPos+1)
+            val intent: Intent = Intent().apply {
+                type = "image/*"
+                action = Intent.ACTION_OPEN_DOCUMENT
+            }
+            myActivityResultLauncher.launch(Intent.createChooser(intent, "Select Picture"))
+        }
+
         if (currPos < 2) {
             startPhotoCaptureActivityBtn.visibility = View.GONE
+            selectFromGalleryBtn.visibility = View.GONE
         } else {
             startPhotoCaptureActivityBtn.visibility = View.VISIBLE
+            selectFromGalleryBtn.visibility = View.VISIBLE
         }
 
         if (!permissionsGranted()) {

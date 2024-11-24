@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -27,6 +28,7 @@ import androidx.core.graphics.set
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.slider.Slider
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
@@ -45,6 +47,7 @@ class FaceBlurringActivity : AppCompatActivity() {
     private var boundingBoxes: MutableList<Rect> = mutableListOf()
     private var blurredPhoto: Bitmap? = null
     private lateinit var blurSlider: Slider
+    private lateinit var progressIndicator: LinearProgressIndicator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,10 +74,13 @@ class FaceBlurringActivity : AppCompatActivity() {
 
         // blur event
         blurBtn.setOnClickListener {
+            progressIndicator = findViewById(R.id.progressIndicator)
+            progressIndicator.visibility = View.VISIBLE
             blurredPhoto = blurFacesBoxFilter(uri)
             if (blurredPhoto != null) {
                 capturedPhoto.setImageBitmap(blurredPhoto)
                 saveBtn.isEnabled = true
+                progressIndicator.visibility = View.GONE
             }
         }
 

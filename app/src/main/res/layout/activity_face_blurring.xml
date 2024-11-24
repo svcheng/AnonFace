@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FaceBlurringActivity"
-    android:background="@color/md_theme_onPrimary">
+    android:background="@color/md_theme_onPrimary"
+    android:orientation="vertical"
+    tools:context=".FaceBlurringActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/blurringToolbar"
@@ -26,71 +28,103 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <ImageView
-        android:id="@+id/capturedPhoto"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="fitXY"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/blurBtn"
-        app:layout_constraintEnd_toEndOf="parent"
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/md_theme_onPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blurringToolbar" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Button
-        android:id="@+id/blurBtn"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="@string/blurring_blur"
-        app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
-        app:layout_constraintEnd_toStartOf="@+id/blurToggle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/blurToggle" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/scrollChild"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/md_theme_onPrimary">
 
-    <ImageButton
-        android:id="@+id/blurToggle"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="150dp"
-        android:background="@drawable/blur_slider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/capturedPhoto" />
+            <ImageView
+                android:id="@+id/capturedPhoto"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toTopOf="@+id/blurBtn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/saveBtn"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:text="@string/blurring_save"
-        android:enabled="false"
-        app:layout_constraintTop_toTopOf="@+id/blurToggle"
-        app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
-        app:layout_constraintStart_toEndOf="@+id/blurToggle"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <Button
+                android:id="@+id/blurBtn"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="@string/blurring_blur"
+                android:fontFamily="@font/geist_medium"
+                app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
+                app:layout_constraintEnd_toStartOf="@+id/blurToggle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/blurToggle" />
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/blurSlider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginTop="5dp"
-        android:stepSize="1"
-        android:valueFrom="0"
-        android:valueTo="100"
-        android:visibility="visible"
-        android:theme="@style/SliderTheme"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blurToggle"
-        app:labelBehavior="gone"
-        app:thumbColor="#7D8ABC"
-        app:thumbStrokeColor="#7D8ABC"
-        app:tickVisible="false"
-        app:trackColorActive="#7D8ABC"
-        app:trackColorInactive="#304463" />
+            <ImageButton
+                android:id="@+id/blurToggle"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="150dp"
+                android:background="@drawable/blur_slider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/capturedPhoto" />
+
+            <Button
+                android:id="@+id/saveBtn"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/blurring_save"
+                android:fontFamily="@font/geist_medium"
+                app:layout_constraintBottom_toBottomOf="@+id/blurToggle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/blurToggle"
+                app:layout_constraintTop_toTopOf="@+id/blurToggle" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/blurSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:stepSize="1"
+                android:theme="@style/SliderTheme"
+                android:valueFrom="0"
+                android:valueTo="100"
+                android:visibility="visible"
+                app:labelBehavior="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/blurToggle"
+                app:thumbColor="#7D8ABC"
+                app:thumbStrokeColor="#7D8ABC"
+                app:tickVisible="false"
+                app:trackColorActive="#7D8ABC"
+                app:trackColorInactive="#304463" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorColor="#7D8ABC"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/capturedPhoto"
+                app:trackColor="#304463" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    </LinearLayout>

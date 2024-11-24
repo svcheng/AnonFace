@@ -14,7 +14,8 @@ class PageIndicator(private val activity: Activity) : RecyclerView.OnScrollListe
         var indicator1 = activity.findViewById<ImageView>(R.id.indicator1)
         var indicator2 = activity.findViewById<ImageView>(R.id.indicator2)
         var indicator3 = activity.findViewById<ImageView>(R.id.indicator3)
-        var button = activity.findViewById<Button>(R.id.startPhotoCaptureActivityBtn)
+        var buttonTakePhoto = activity.findViewById<Button>(R.id.startPhotoCaptureActivityBtn)
+        var buttonSelectGallery = activity.findViewById<Button>(R.id.selectFromGalleryBtn)
 
         var indicators : ArrayList<ImageView> = arrayListOf(indicator1, indicator2, indicator3)
         indicators.forEach {
@@ -23,9 +24,11 @@ class PageIndicator(private val activity: Activity) : RecyclerView.OnScrollListe
         indicators[position].setImageResource(R.drawable.indicator_selected)
 
         if (position < 2) {
-            button.visibility = View.GONE
+            buttonTakePhoto.visibility = View.GONE
+            buttonSelectGallery.visibility = View.GONE
         } else {
-            button.visibility = View.VISIBLE
+            buttonTakePhoto.visibility = View.VISIBLE
+            buttonSelectGallery.visibility = View.VISIBLE
         }
 
         //button
